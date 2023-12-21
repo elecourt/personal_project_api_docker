@@ -1,0 +1,38 @@
+version: '3'
+ 
+services:
+  mongo_db:
+    image: mongo:4.0-xenial
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: DBapiBack
+    networks:
+      - resto-commande
+
+  back:
+    image: back
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mongo_db
+    environment: 
+      - MONGO_URL=mongodb://mongo_db:27017/DBapiBack
+    networks:
+      - resto-commande
+  
+  backoffice:
+    image: backoffice
+    ports:
+      - "5173:80"
+    depends_on:
+      - mongo_db
+      - back
+    environment:
+      VITE_API_URL: http://back:9000/api
+    networks:
+      - resto-commande
+
+networks:
+  resto-commande:
+    driver: bridge
